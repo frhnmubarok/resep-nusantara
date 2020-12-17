@@ -53,6 +53,9 @@ async function handlePostback(context) {
 		} else if (context.event.postback.data.split(" ").includes("kategori")) {
 			let splitted = context.event.postback.data.split(" ").splice(0, 1);
 			return withProps(categoryDetails, { resep: splitted[0] });
+		} else if (context.event.postback.data.split(" ").includes("resep")) {
+			let splitted = context.event.postback.data.split(" ").splice(0, 1);
+			return withProps(recipeDetails, { resep: splitted[0] });
 		}
 		let splitted = context.event.postback.data.split(" ").splice(0, 1);
 		console.log(splitted);
@@ -167,6 +170,7 @@ const categoryDetails = async (context, props) => {
 							text: recipe.title,
 							weight: "bold",
 							size: "md",
+							wrap: true,
 						},
 						{
 							type: "box",
@@ -274,8 +278,8 @@ const categoryDetails = async (context, props) => {
 							height: "sm",
 							action: {
 								type: "postback",
-								label: "Lihat resep",
-								data: recipe.key,
+								label: "Lihat Resep",
+								data: `${recipe.key} resep`,
 							},
 						},
 					],
@@ -298,7 +302,234 @@ const recipeDetails = async (context, props) => {
 	try {
 		const details = await fetch(`${BASE_URL}/api/recipe/${props.resep}`);
 		let response = await details.json();
-		await context.replyText(response.results.title);
+		let data = response.results;
+		let bahan = [
+			{
+				type: "text",
+				size: "md",
+				margin: "sm",
+				wrap: true,
+				offsetTop: "sm",
+				text: "Bahan-bahan",
+				weight: "bold",
+				decoration: "underline",
+				align: "start",
+				offsetBottom: "none",
+				position: "relative",
+				offsetEnd: "none",
+				contents: [],
+			},
+		];
+		let steps = [
+			{
+				type: "text",
+				size: "md",
+				margin: "sm",
+				wrap: true,
+				offsetTop: "sm",
+				text: "Cara membuat",
+				weight: "bold",
+				decoration: "underline",
+				align: "start",
+				offsetBottom: "none",
+				position: "relative",
+				offsetEnd: "none",
+				contents: [],
+			},
+		];
+		data.needItem.forEach((item) => {
+			let itemObj = {
+				type: "text",
+				text: `- ${item.item_name}`,
+				size: "sm",
+				wrap: true,
+				offsetTop: "xs",
+			};
+			bahan.push(itemObj);
+		});
+		data.ingredient.forEach((item) => {
+			let ingredientObj = {
+				type: "text",
+				text: `- ${item}`,
+				size: "sm",
+				wrap: true,
+				margin: "xs",
+			};
+			bahan.push(ingredientObj);
+		});
+		data.step.forEach((item) => {
+			let stepObj = {
+				type: "text",
+				text: `${item}`,
+				size: "sm",
+				wrap: true,
+				margin: "md",
+			};
+			steps.push(stepObj);
+		});
+		if (data.thumb === null) {
+			data.thumb =
+				"https://www.hopkinsmedicine.org/-/media/feature/noimageavailable.ashx";
+		}
+		await context.sendFlex("This is an advanced flex", {
+			type: "bubble",
+			size: "giga",
+			hero: {
+				type: "image",
+				url: data.thumb,
+				size: "full",
+				aspectRatio: "20:13",
+				aspectMode: "cover",
+			},
+			body: {
+				type: "box",
+				layout: "vertical",
+				contents: [
+					{
+						type: "text",
+						text: data.title,
+						weight: "bold",
+						size: "lg",
+						align: "center",
+						wrap: true,
+					},
+					{
+						type: "box",
+						layout: "vertical",
+						margin: "lg",
+						spacing: "sm",
+						contents: [
+							{
+								type: "box",
+								layout: "baseline",
+								spacing: "sm",
+								contents: [
+									{
+										type: "text",
+										text: "Waktu",
+										color: "#aaaaaa",
+										size: "sm",
+										flex: 3,
+									},
+									{
+										type: "text",
+										text: data.times,
+										wrap: true,
+										color: "#666666",
+										size: "sm",
+										flex: 10,
+									},
+								],
+							},
+							{
+								type: "box",
+								layout: "baseline",
+								spacing: "sm",
+								contents: [
+									{
+										type: "text",
+										text: "Porsi",
+										flex: 3,
+										size: "sm",
+										color: "#aaaaaa",
+									},
+									{
+										type: "text",
+										text: data.servings,
+										flex: 10,
+										size: "sm",
+										color: "#666666",
+									},
+								],
+							},
+							{
+								type: "box",
+								layout: "baseline",
+								contents: [
+									{
+										type: "text",
+										text: "Kesulitan",
+										flex: 3,
+										size: "sm",
+										color: "#aaaaaa",
+									},
+									{
+										type: "text",
+										text: data.dificulty,
+										flex: 10,
+										size: "sm",
+										color: "#666666",
+										wrap: true,
+									},
+								],
+								spacing: "sm",
+							},
+							{
+								type: "box",
+								layout: "baseline",
+								contents: [
+									{
+										type: "text",
+										text: "Author",
+										flex: 3,
+										size: "sm",
+										color: "#aaaaaa",
+									},
+									{
+										type: "text",
+										text: data.author.user,
+										flex: 10,
+										size: "sm",
+										color: "#666666",
+									},
+								],
+								spacing: "sm",
+							},
+						],
+					},
+					{
+						type: "separator",
+						margin: "sm",
+					},
+					{
+						type: "box",
+						layout: "vertical",
+						contents: [
+							{
+								type: "box",
+								layout: "vertical",
+								contents: bahan,
+							},
+						],
+					},
+					{
+						type: "separator",
+						margin: "sm",
+					},
+					{
+						type: "box",
+						layout: "vertical",
+						contents: [
+							{
+								type: "box",
+								layout: "vertical",
+								contents: steps,
+							},
+						],
+					},
+				],
+				spacing: "none",
+				margin: "none",
+				borderWidth: "none",
+				cornerRadius: "none",
+				paddingAll: "lg",
+			},
+			styles: {
+				footer: {
+					separator: true,
+				},
+			},
+		});
 	} catch (err) {
 		console.log(err);
 	}
