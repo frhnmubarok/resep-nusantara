@@ -16,7 +16,7 @@ module.exports = async function App(context) {
 	// 	await context.sendText(`received the payload: ${context.event.payload}`);
 	// }
 	return router([
-		text("resep", sayHello),
+		//text("resep", recipeDetails),
 		text(
 			"resep-nasi-goreng-jawa",
 			withProps(recipeDetails, { resep: "resep-nasi-goreng-jawa" })
