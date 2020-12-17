@@ -40,6 +40,9 @@ async function handleFollow(context) {
 	await context.sendText(
 		"Silahkan ketik /help untuk menampilkan perintah yang ada di bot ini"
 	);
+	await context.sendText(
+		"Informasi perintah : \n- Kategori : Bot akan menampilkan kategori masakan \n- Surprise Me! : Bot akan menampilkan resep masakan secara acak \n- Cari : cari resep berdasarkan kata kunci"
+	);
 }
 
 async function handlePostback(context) {
@@ -115,9 +118,6 @@ async function handleHelp(context) {
 
 const recipeCategory = async (context) => {
 	try {
-		const quickReply = {
-			items: [],
-		};
 		const contents = [];
 		const category = await fetch(`${BASE_URL}/api/categorys/recipes/`);
 		let response = await category.json();
@@ -148,7 +148,7 @@ const recipeCategory = async (context) => {
 			contents.push(categoryObj);
 		});
 
-		await context.sendFlex("Category menu", {
+		await context.sendFlex("Menu kategori :", {
 			type: "carousel",
 			contents,
 		});
@@ -199,12 +199,6 @@ const categoryDetails = async (context, props) => {
 									spacing: "sm",
 									contents: [
 										{
-											type: "icon",
-											url:
-												"https://www.flaticon.com/svg/static/icons/svg/850/850960.svg",
-											size: "sm",
-										},
-										{
 											type: "text",
 											text: "Waktu",
 											color: "#aaaaaa",
@@ -227,12 +221,6 @@ const categoryDetails = async (context, props) => {
 									spacing: "sm",
 									contents: [
 										{
-											type: "icon",
-											url:
-												"https://www.flaticon.com/svg/static/icons/svg/608/608857.svg",
-											size: "sm",
-										},
-										{
 											type: "text",
 											text: "Porsi",
 											color: "#aaaaaa",
@@ -253,12 +241,6 @@ const categoryDetails = async (context, props) => {
 									type: "box",
 									layout: "baseline",
 									contents: [
-										{
-											type: "icon",
-											url:
-												"https://www.flaticon.com/svg/static/icons/svg/571/571685.svg",
-											size: "sm",
-										},
 										{
 											type: "text",
 											text: "Kesulitan",
@@ -304,7 +286,7 @@ const categoryDetails = async (context, props) => {
 			};
 			contents.push(recipeObj);
 		});
-		await context.sendFlex("This is a carousel flex", {
+		await context.sendFlex("Daftar resep berdasarkan kategori :", {
 			type: "carousel",
 			contents,
 		});
@@ -380,7 +362,7 @@ const recipeDetails = async (context, props) => {
 				"https://www.hopkinsmedicine.org/-/media/feature/noimageavailable.ashx";
 		}
 
-		await context.sendFlex("This is an advanced flex", {
+		await context.sendFlex("Detail resep :", {
 			type: "bubble",
 			size: "giga",
 			hero: {
@@ -692,14 +674,14 @@ const searchRecipe = async (context, props) => {
 			};
 			contents.push(recipeObj);
 		});
-		await context.sendFlex("This is a carousel flex", {
+		await context.sendFlex("Detail resep :", {
 			type: "carousel",
 			contents,
 		});
 	} catch (err) {
 		console.log(err);
 		await context.sendText(
-			"Mohon maaf karena terjadi kendala, silakan ketikkan perintah kembali"
+			"Terjadi kendala, silakan ketikkan perintah kembali"
 		);
 	}
 };
@@ -775,7 +757,7 @@ const randomRecipe = async (context) => {
 				"https://www.hopkinsmedicine.org/-/media/feature/noimageavailable.ashx";
 		}
 
-		await context.sendFlex("This is an advanced flex", {
+		await context.sendFlex("Detail resep :", {
 			type: "bubble",
 			size: "giga",
 			hero: {
