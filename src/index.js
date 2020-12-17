@@ -549,7 +549,10 @@ const searchRecipe = async (context, props) => {
 		const contents = [];
 		const details = await fetch(`${BASE_URL}/api/search/?q=${props.resep}`);
 		let response = await details.json();
-		let data = response.results;
+		let data = await response.results;
+		if (data.length < 1)
+			throw await context.sendText("Mohon maaf, kata kunci tidak ditemukan");
+
 		data.splice(0, 8).forEach((recipe) => {
 			let recipeObj = {
 				type: "bubble",
@@ -695,6 +698,9 @@ const searchRecipe = async (context, props) => {
 		});
 	} catch (err) {
 		console.log(err);
+		await context.sendText(
+			"Mohon maaf karena terjadi kendala, silakan ketikkan perintah kembali"
+		);
 	}
 };
 
