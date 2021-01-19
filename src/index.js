@@ -17,7 +17,8 @@ module.exports = async function App(context) {
 	return router([
 		line.follow(handleFollow),
 		text(["/random", "/Random"], randomRecipe),
-		text(["/kategori", "Kategori"], recipeCategory),
+    text(["/kategori", "Kategori"], recipeCategory),
+    text(["/artikel", "Artikel"], articleCategory),
 		text("/help", handleHelp),
 		line.postback(handlePostback),
 		route("*", unknown),
@@ -57,7 +58,7 @@ async function handlePostback(context) {
 		} else if (context.event.postback.data.split(" ").includes("resep")) {
 			let splitted = context.event.postback.data.split(" ").splice(0, 1);
 			return withProps(recipeDetails, { resep: splitted[0] });
-		}
+		} 
 		let splitted = context.event.postback.data.split(" ").splice(0, 1);
 		console.log(splitted);
 	} catch (err) {
@@ -135,7 +136,8 @@ const recipeCategory = async (context) => {
 							action: {
 								type: "postback",
 								label: categories.category,
-								data: `${categories.key} kategori`,
+                data: `${categories.key} kategori`,
+                text: categories.category,
 							},
 							style: "primary",
 							height: "md",
@@ -157,6 +159,46 @@ const recipeCategory = async (context) => {
 	}
 };
 
+const articleCategory = (context) => {
+  try {
+		const contents = [];
+		const article = await fetch(`${BASE_URL}/api/categorys/article/`);
+		let response = await article.json();
+		let data = response.results;
+		data.forEach((articles) => {
+			let articleObj = {
+				type: "bubble",
+				size: "kilo",
+				body: {
+					type: "box",
+					layout: "vertical",
+					contents: [
+						{
+							type: "button",
+							action: {
+								type: "postback",
+								label: articles.title,
+								data: `${articles.key} artikel`,
+							},
+							style: "primary",
+							height: "md",
+							margin: "none",
+						},
+					],
+					backgroundColor: "#81ecec",
+				},
+			};
+			contents.push(articleObj);
+		});
+
+		await context.sendFlex("Menu kategori :", {
+			type: "carousel",
+			contents,
+		});
+	} catch (err) {
+		console.log(err);
+	}
+}
 const categoryDetails = async (context, props) => {
 	try {
 		const contents = [];
